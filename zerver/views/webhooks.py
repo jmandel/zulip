@@ -1003,3 +1003,24 @@ def api_pagerduty_webhook(request, user_profile, stream=REQ(default='pagerduty')
             send_formated_pagerduty(user_profile, stream, message_type, format_dict, topic)
 
     return json_success()
+
+@api_key_only_webhook_view
+@has_request_variables
+def api_travis_webhook(request, user_profile, stream=REQ(default='travis'), topic=REQ(default=None)):
+    message = ujson.loads(request.POST['payload'])
+
+    happy = ["Passed", "Fixed"]
+    sad   = [ "Failed", "Broken", "Still Failing"]
+
+    author = message['author_email'][0]
+    message_type = message['status_message']
+    emoticon = ""
+    if message_type in happy:
+        emoticon = ":thumbsup:"
+    if message_type in sad:
+        emoticon = ":thumbsdown:"
+    subject = topic
+    body = u'Author: %s\nBuild status: %s %s\n'%(author, message_type, emoticon)
+    check_send_message(user_profile, get_client('ZulipTravisWebhook'), 'stream',
+                       [stream], topic, body)
+    return json_success()
