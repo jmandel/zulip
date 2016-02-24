@@ -1,6 +1,7 @@
 var message_edit = (function () {
 var exports = {};
 var currently_editing_messages = {};
+var currently_editing_topics = {};
 
 
 //returns true if the edit task should end.
@@ -79,9 +80,18 @@ function handle_edit_keydown(e) {
             message_edit.end(row);
         }
     } else if (e.target.id === "message_edit_topic" && code === 13) {
-        //hitting enter in topic field isn't so great.
         e.stopPropagation();
-        e.preventDefault();
+        // hitting enter in topic field saves if we're doing a topic-only edit
+        row = $(".message_edit_topic").filter(":focus").closest(".recipient_row");
+        if (message_edit.is_editing_topic(row.id)) {
+            if (message_edit.save(row) === true) {
+                current_msg_list.hide_edit_topic(row);
+            }
+            popovers.hide_all();
+        } else {
+          // but has no effect in a full-on message edit
+            e.preventDefault();
+        }
     }
 }
 
@@ -161,6 +171,7 @@ exports.start_local_failed_edit = function (row, message) {
 exports.start_topic_edit = function (recipient_row) {
     var form = $(templates.render('topic_edit_form'));
     current_msg_list.show_edit_topic(recipient_row, form);
+    currently_editing_topics[message.id] = true;
     form.keydown(handle_edit_keydown);
     var msg_id = rows.id_for_recipient_row(recipient_row);
     var message = current_msg_list.get(msg_id);
@@ -169,6 +180,10 @@ exports.start_topic_edit = function (recipient_row) {
         topic = '';
     }
     form.find(".message_edit_topic").val(topic).select().focus();
+};
+
+exports.is_editing_topic = function (id) {
+    return currently_editing_topics[id] !== undefined;
 };
 
 exports.is_editing = function (id) {
@@ -182,6 +197,9 @@ exports.end = function (row) {
         var scroll_by = currently_editing_messages[message.id].scrolled_by;
         viewport.scrollTop(viewport.scrollTop() - scroll_by);
         delete currently_editing_messages[message.id];
+        if (currently_editing_topics[message.id] !== undefined) {
+            delete currently_editing_topics[message.id];
+        }
         current_msg_list.hide_edit_message(row);
     }
 };
