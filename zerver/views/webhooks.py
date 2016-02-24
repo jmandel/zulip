@@ -112,7 +112,7 @@ def api_github_v2(user_profile, event, payload, branches, default_stream, commit
                                                      payload['ref'], payload['commits'],
                                                      payload['before'], payload['after'],
                                                      payload['compare'],
-                                                     payload['pusher']['name'],
+                                                     payload['head_commit']['committer']['email'],
                                                      forced=payload['forced'],
                                                      created=payload['created'])
     elif event == 'commit_comment':
@@ -1015,17 +1015,19 @@ def api_travis_webhook(request, user_profile, stream=REQ(default='travis'), topi
 
     good_status = ["Passed", "Fixed"]
     bad_status   = [ "Failed", "Broken", "Still Failing"]
+    build_url = message['build_url']
+
     emoji = ""
-    if message_type in happy:
+    if message_type in good_status:
         emoji = ":thumbsup:"
-    elif message_type in sad:
+    elif message_type in bad_status:
         emoji = ":thumbsdown:"
 
     template = ('Author: %s\n'
     u'Build status: %s %s\n'
     u'Details: [changes](%s), [build log](%s)')
 
-    body = template%(author, message_type, emoji, changes, build_log)
+    body = template%(author, message_type, emoji, changes, build_url)
 
     check_send_message(user_profile, get_client('ZulipTravisWebhook'), 'stream', [stream], topic, body)
     return json_success()
