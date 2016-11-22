@@ -112,7 +112,7 @@ def api_github_v2(user_profile, event, payload, branches, default_stream,
                                                      payload['ref'], payload['commits'],
                                                      payload['before'], payload['after'],
                                                      payload['compare'],
-                                                     payload['pusher']['name'],
+                                                     payload['head_commit']['committer']['email'],
                                                      forced=payload['forced'],
                                                      created=payload['created'])
     elif event == 'commit_comment':
@@ -236,7 +236,12 @@ def build_commit_list_content(commits, branch, compare_url, pusher):
     for commit in truncated_commits:
         short_id = commit['id'][:7]
         (short_commit_msg, _, _) = commit['message'].partition('\n')
-        content += u'* [%s](%s): %s\n' % (short_id, commit['url'],
+        svn_rev = re.search('@\d+', commit['message'])
+        svn_rev = svn_rev and svn_rev.group() or ''
+        if short_id:
+            short_id = svn_rev
+
+        content += '* [%s](%s): %s\n' % (short_id, commit['url'],
                                          short_commit_msg)
     if num_commits > COMMITS_IN_LIST_LIMIT:
         content += (u'\n[and %d more commits]'
