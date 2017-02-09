@@ -124,12 +124,21 @@ def get_commits_comment_action_message(user_name, action, commit_url, sha, messa
         )
     return content
 
+def get_short_sha_or_svn(commit):
+    # type: (Any) -> Text
+    short_sha = get_short_sha(commit.get('sha'))
+    svn_rev = re.search('@\d+', commit.get('message', ''))
+    svn_rev = svn_rev and svn_rev.group() or ''
+    if svn_rev and short_sha:
+        short_sha = svn_rev
+    return short_sha
+
 def get_commits_content(commits_data, is_truncated=False):
     # type: (List[Dict[str, Any]], Optional[bool]) -> Text
     commits_content = u''
     for commit in commits_data[:COMMITS_LIMIT]:
         commits_content += COMMIT_ROW_TEMPLATE.format(
-            commit_short_sha=get_short_sha(commit.get('sha')),
+            commit_short_sha=get_short_sha_of_svn(commit),
             commit_url=commit.get('url'),
             commit_msg=commit.get('message').partition('\n')[0]
         )
