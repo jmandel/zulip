@@ -1,3 +1,4 @@
+import re
 from typing import Optional, Any, Text
 
 SUBJECT_WITH_BRANCH_TEMPLATE = u'{repo} / {branch}'
