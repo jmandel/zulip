@@ -138,7 +138,7 @@ def get_commits_content(commits_data, is_truncated=False):
     commits_content = u''
     for commit in commits_data[:COMMITS_LIMIT]:
         commits_content += COMMIT_ROW_TEMPLATE.format(
-            commit_short_sha=get_short_sha_of_svn(commit),
+            commit_short_sha=get_short_sha_or_svn(commit),
             commit_url=commit.get('url'),
             commit_msg=commit.get('message').partition('\n')[0]
         )
