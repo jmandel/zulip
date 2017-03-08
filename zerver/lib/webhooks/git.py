@@ -129,9 +129,8 @@ def get_short_sha_or_svn(commit):
     # type: (Any) -> Text
     short_sha = get_short_sha(commit.get('sha'))
     svn_rev = re.search('@\d+', commit.get('message', ''))
-    svn_rev = svn_rev and svn_rev.group() or ''
-    if svn_rev and short_sha:
-        short_sha = svn_rev
+    if svn_rev and svn_rev.group() and short_sha:
+        short_sha = svn_rev.group()
     return short_sha
 
 def get_commits_content(commits_data, is_truncated=False):

@@ -165,11 +165,14 @@ def api_github_v2(user_profile, event, payload, branches, default_stream,
         content = github_object_commented_content(payload, type)
 
     elif event == 'push':
+        pusher = payload.get('pusher', {}).get('name', '')
+        if not pusher:
+            pusher = payload['head_commit']['committer']['email']
         subject, content = build_message_from_gitlog(user_profile, topic_focus,
                                                      payload['ref'], payload['commits'],
                                                      payload['before'], payload['after'],
                                                      payload['compare'],
-                                                     payload['head_commit']['committer']['email'],
+                                                     pusher,
                                                      forced=payload['forced'],
                                                      created=payload['created'])
     elif event == 'commit_comment':

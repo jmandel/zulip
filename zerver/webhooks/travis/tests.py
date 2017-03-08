@@ -16,7 +16,7 @@ class TravisHookTests(WebhookTestCase):
         The subject describes the repo and Stash "project". The
         content describes the commits pushed.
         """
-        expected_message = (u"Author: josh_mandel\nBuild status: Passed :thumbsup:\n"
+        expected_message = (u"Revision: @7323\nAuthor: josh_mandel\nBuild status: Passed :thumbsup:\n"
                             u"Details: [changes](https://github.com/hl7-fhir/fhir-sv"
                             u"n/compare/6dccb98bcfd9...6c457d366a31), [build log](ht"
                             u"tps://travis-ci.org/hl7-fhir/fhir-svn/builds/92495257)")
